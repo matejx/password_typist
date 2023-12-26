@@ -1,3 +1,11 @@
+/**
+password typist
+
+@file		main.c
+@author		Matej Kogovsek
+@copyright	GPL v2
+*/
+
 #include <avr/eeprom.h>
 #include <avr/wdt.h>
 #include <avr/power.h>
@@ -24,14 +32,14 @@ uint8_t getswi(void)
 	if( r == 255 ) {
 		uint8_t i;
 		for( i = 0; i < NSWITCHES; ++i ) {
-			PORTD |= _BV(swbit[i]);
+			SW_PORT |= _BV(swbit[i]);
 		}
 
 		_delay_ms(1);
 		r = 0;
 
 		for( i = 0; i < NSWITCHES; ++i ) {
-			if( !(PIND & _BV(swbit[i])) ) r |= _BV(i);
+			if( !(PIN(SW_PORT) & _BV(swbit[i])) ) r |= _BV(i);
 		}
 	}
 
@@ -44,6 +52,7 @@ void eeprom_erase(void)
 	uint16_t ea;
 
 	for( ea = 0; ea <= E2END; ++ea ) {
+		wdt_reset();
 		eeprom_update_byte((void*)ea, 0);
 	}
 }
@@ -53,7 +62,11 @@ int main(void)
 	clock_prescale_set(clock_div_1);
 
 	if( getswi() == SW_ERASE_CMD ) {
+		DDR(LED_PORT) |= _BV(LED_BIT);
+		LED_PORT |= _BV(LED_BIT);
 		eeprom_erase();
+		_delay_ms(500);
+		LED_PORT &= ~_BV(LED_BIT);
 	} else
 	if( getswi() == SW_SETUP_CMD ) {
 		s_mode = 1;

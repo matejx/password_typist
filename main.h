@@ -2,7 +2,15 @@
 #define MAIN_H
 
 #define PWD_SIZE 32
-#define PWD_COUNT 8
+#define PWD_COUNT 16
+
+#define SW_PORT PORTD
+
+#define LED_PORT PORTD
+#define LED_BIT 1
+
+#define DDR(x) (*(&x - 1))
+#define PIN(x) (*(&x - 2))
 
 uint8_t getswi(void);
 void eeprom_erase(void);
